@@ -1561,7 +1561,7 @@
 	@media screen and (max-width: 480px) {
 
 		html, body {
-			min-width: 320px;
+		    min-width: 320px;
 		}
 
 	}
@@ -1667,7 +1667,8 @@
 	}
 
 	p {
-		margin: 0 0 2em 0;
+	    margin: 0 0 2em 0;
+	    max-width: 750px;
 	}
 
 	h1, h2, h3, h4, h5, h6 {
@@ -1735,6 +1736,7 @@
 		font-size: 0.9em;
 		margin: 0 0.25em;
 		padding: 0.25em 0.65em;
+		max-width: 700px;
 	}
 
 	pre {
@@ -1742,6 +1744,7 @@
 		font-family: "Courier New", monospace;
 		font-size: 0.9em;
 		margin: 0 0 2em 0;
+		max-width: 750px;
 	}
 
 		pre code {
