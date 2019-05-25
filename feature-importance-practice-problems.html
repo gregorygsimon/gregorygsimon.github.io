@@ -1,0 +1,198 @@
+<!DOCTYPE HTML>
+<!--
+Spatial by TEMPLATED
+templated.co @templatedco
+Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+<head>
+  <title> Feature importance of student practice problems </title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet"
+	href="assets/css/prism.css">
+
+<style>
+p {
+  max-width:750px;
+}
+pre {
+  max-width:730px;
+  }
+code {
+  max-width:700px;
+}
+</style>
+    
+</head>
+<body>
+  
+  <!-- Header -->
+  <header id="header">
+
+    <h1><strong><a href="index.html">Gregory G. Simon </a></strong></h1>
+    <nav id="nav">
+      <ul>
+	<li><a href="index.html">Home</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <a href="#menu" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+  
+  <!-- Main -->
+  <section id="main" class="wrapper">
+    <div class="container">
+      <header class="major special">
+	  <h2> Feature importance of student practice problems </h2>
+	<p> Python (xgboost, seaborn, selenium, BeautifulSoup)   </p>
+      </header>
+      
+      <section>
+	<h3> Summary </h3>
+	<p> Students work on many practice problems with the hope that understanding these problems predicts success for the cumulative assessment. Which practice problems are most predictive? Using a selection of several hundred students' results on 70 practice questions, we use a boosted tree model (XGBoost) to predict success and extract importance of each problem for overall success on the cumulative assessment. </p>
+
+	<h3> Results </h3>
+
+	<div style="margin: 0 auto;width:1000px;">
+	    <img
+		src="images/importances.png" width="500" class="center" alt=""
+	    />
+	</div>
+
+	<p> Of the 70 questions analyzed, 10-15 emerged as highly predictive of success. The hardest problems were not the most predictive but rather the problems that had simple solutions based on standard rules as well as the simpler algebraic questions. </p>
+
+	<p> Before analysis, we believed several practice questions were identical conceptually. However this revealed some are much more predictive. Subtle differences in the problems and in the multiple choice answers led to some problems being more valuable, which is knowledge we can use to improve the practice problems in the course. </p>
+	
+	<h3> Details </h3>
+	
+	<h4> Web-scraping, Gathering, & Cleaning Data  </h4>
+
+	<p> This was by far the longest part of this project, but also the most straight forward. Alerts for assessment attempts was accessible in daily emails, and in our portal accessible only on browser behind secure login. This involved careful HTML scraping. I wrote several functions, which I'll summarize below:
+	    <ul>
+		<li style="width:60%"> <code class="language-python"> get_ids() </code> function: using <a href="https://pypi.org/project/pywin32/"> pywin32 </a> and <a href="https://pypi.org/project/beautifulsoup4/"> beautifulsoup4 </a> to read HTML emailed assessment daily summaries in Outlook to get the unique ID numbers of all recent assessments </li>
+
+		<li style="width:60%"> <code class="language-python"> get_practice_results(id) </code> function: using <a href="https://selenium-python.readthedocs.io/" > selenium </a> to access online coursework and collect practice problem results, by date </li>
+		<li style="width:60%"> <code class="language-python"> get_end_results(id) </code> function: given ID number, use <a href="https://selenium-python.readthedocs.io/" > selenium </a> to navigate to the results page for the student and collect how they did by chapter. </li>
+		<li style="width:60%"> <code class="language-python"> get_relevant_results(id) </code> function: gets both practice and end results, and collect only the practice questions completed within 21 days of assessment, as we hypothesize recent results will be more relevant im prediction. Save results as row in CSV using <code class="language-python"> df.to_csv('results.csv',mode='a',header=False) </code>  </li>
+	    </ul>
+	</p>
+	    <h4> Assessing feature importance </h4>
+
+	    <p>	    Our features are binary (problems being correct or incorrect) and our target variable is the percentage score on cumulative test. I tried several models initially (linear regression with polynomial features/interactions, random forest, and xgboost) settling on xgboost getting the best prediction, by mean squared error. </p>
+
+	    Here is a summary of the code for assessing feature importance. First the imports: </p>
+
+	    <pre><code class="language-python">
+import numpy as np
+import pandas as pd
+import scipy.stats as st
+import random
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RandomizedSearchCV
+
+from xgboost import XGBRegressor
+
+import matplotlib as mpl
+import seaborn as sns
+</code></pre>
+
+	    <p> Because tree based methods are random and we are using a <code class="language-python"> RandomizedSearchCV </code>, the feature importance will vary for different runs of the model. So we define a function to run the model many times, with a specified random seed. </p>
+	    
+	    <pre><code class="language-python">
+
+def get_feature_importance(rand_seed):
+
+    X = df.iloc[:,:70] # practice questions
+    y = df.iloc[:,-8]  # final result score
+
+    X_train, X_test, y_train, y_test = \
+        train_test_split(X, y, test_size=0.20, random_state=rand_seed)
+    
+    one_to_left = st.beta(10, 1)         # near 1 or below
+    from_zero_positive = st.expon(0, 50) # nonnegative unbounded distribution with median ~35
+    
+    params = {  
+        "n_estimators": st.randint(3, 40),
+        "max_depth": st.randint(3, 40),
+        "learning_rate": st.uniform(0.05, 0.4),
+        "colsample_bytree": one_to_left,
+        "subsample": one_to_left,
+        "gamma": st.uniform(0, 10),
+        'reg_alpha': from_zero_positive,
+        "min_child_weight": from_zero_positive,
+    }
+    
+    xgbreg = XGBRegressor(nthreads=-1)
+    
+    gs = RandomizedSearchCV(xgbreg, params, n_jobs=-1)  
+    gs.fit(X_train, y_train)
+    
+    model = gs.best_estimator_
+
+    feat_importances = pd.Series(model.feature_importances_, index=X.columns)
+
+    return feat_importances
+	    </code></pre>
+
+	    <p>	    We then initialize a seed, produce a long sequence of psuedo-random numbers to be used as many seeds, then run our <code class="language-python"> get_feature_importance </code> on each of those seeds and accumulate the results in a dataframe called <code class="language-python"> df </code>. </p>
+
+	    <h4> Plotting results & Summarizing </h4>
+
+	    <p> We now have a dataframe with each problem being a column <code class="language-python"> p1, p2, ... p70 </code>, each column having 50 feature importance scores. We sort these by median, taking the largest 20, and then plot the box plots for the problems in order:
+	
+	<pre><code class="language-python">
+top20 = df.median().nlargest(20).index #indices of 20 problems with highest median score
+
+
+# tweaking seaborn settings for readibility
+sns.set(rc={'figure.figsize':(11.7,8.27),
+            'xtick.labelsize':15, 'ytick.labelsize':15})
+sns.set_style("whitegrid")
+sns.set_palette(sns.color_palette("cubehelix_r", 25))
+
+# plotting top 20
+ax=sns.boxplot(data=df[top20],showfliers=False)
+
+# title and axes labels
+ax.set_title("Importance of practice problems\n"+\
+ "for predicting student outcomes,\n top 20 problems",fontsize=30)
+ax.set_xlabel("Practice Problems", fontsize=20)
+ax.set_ylabel("Feature importance via XGBoost model",fontsize=20)
+
+#saving figure
+mpl.pyplot.savefig("importances.png", bbox_inches='tight',dpi=80)
+	</code></pre></p>
+
+	    <p> This gives us the plot as seen above:
+
+		<div style="margin: 0 auto;width:1000px;">
+		    <img
+			src="images/importances.png" width="500" class="center" alt=""
+		    />
+		</div>
+	<br>
+
+	<p> These questions were neither the hardest nor the easiest. We can find the hardest 10 questions using <code class="language-python"> X.mean().nsmallest(30).index </code> which gives the list: 50, 1, 59, 40, 66, 64, 21, 41, 63, 39. Only two of these hardest problems are in the list of most predictive. </p>
+
+<p> This enabled us as teachers to make our course better for our students and likely to improve their performance in the process. By rewriting and replacing poorly performing problems, using the insights we see from the better performing problems, we'll better align student's practice efforts with their success in the course. 
+
+
+</section>
+
+	      </div>
+	    </section>
+
+
+	    <!-- Scripts -->
+	    <script src="assets/js/jquery.min.js"></script>
+	    <script src="assets/js/skel.min.js"></script>
+	    <script src="assets/js/util.js"></script>
+	    <script src="assets/js/main.js"></script>
+	    <script src="assets/js/prism.js"></script>
+
+
+	  </body>
+	</html>
