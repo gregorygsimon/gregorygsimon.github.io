@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<!--
+Spatial by TEMPLATED
+templated.co @templatedco
+Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+<head>
+  <title> Classifying expenses using user defined categories </title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet"
+	href="assets/css/prism.css">
+
+<style>
+p {
+  max-width:750px;
+}
+pre {
+  max-width:730px;
+  }
+code {
+  max-width:700px;
+}
+</style>
+    
+</head>
+<body>
+  
+  <!-- Header -->
+  <header id="header">
+
+    <h1><strong><a href="index.html">Gregory G. Simon </a></strong></h1>
+    <nav id="nav">
+      <ul>
+	<li><a href="index.html">Home</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <a href="#menu" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+  
+  <!-- Main -->
+  <section id="main" class="wrapper">
+    <div class="container">
+      <header class="major special">
+	  <h2>  Classifying expenses using user-defined categories </h2>
+	<p> AWS APIGateway, AWS Lambda, scikit-learn, NLP </p>
+      </header>
+      
+      <section>
+        <h4> Business use case </h4>
+	<p> Personal budgeting generally requires users to categorize their expenditures. Some websites/apps (e.g. Mint) automatically classify expenditures into their own predefined categories. If the user wants to define their own custom categories however then they need to manually label each transaction as it arrives. Using machine learning, we can help with this labeling process in real time. </p>
+
+        <h4> Challenges </h4>
+        <p> Financial transaction data is difficult to get and even harder to get in real time. Also if the users define their own categories, then we will require a personalized model trained for each user.  </p>
+
+        <h4> Solutions </h4>
+        
+                	<div style="margin: 0 auto;width:1200px;">
+	    <img
+	      src="images/cc-aws-diagram.png" width="750" alt=""
+	    />
+	</div>
+
+        <p> The code and data used in this project are available in <a href='https://github.com/gregorygsimon/credit-card-aws'> this Github repo</a>.
+        
+        <p> In an enterprise scenario, we would want some kind of read access for the transactions on the user's account (like Mint already has). For this project we can utilize the notification services that many banks offer. Chase bank, Bank of America, and many other banks allows users to send an email alert any time their credit card is used. So we set this up to send to a GMail account specifically set up for this purpose.  </p>
+
+        <p> Using AWS APIGateway, we set up an API with an HTTP POST method, and we use Google Script to read the incoming email (from the bank) and send out the PUT request. The AWS API Gateway is connected to an AWS Lambda function which parses the email and stores the transaction results in S3. Thus we can get a near real-time data set of transactions on the credit card. The lambda function is available in the repo as <a href='https://github.com/gregorygsimon/credit-card-aws/blob/master/lambda_function.py'> <code> lambda_function.py </code> </a>.
+
+        <p> This would be  much simpler for the end user: they  would only have to sign up for the notification service with their credit card company, and point the notification to our email address to parse their transactions. </p>
+
+
+        <h4> Modeling  </h4>
+
+        <p> After a few months of letting this run, I collected about 125 transactions. These had a date, a dollar amount, and a text that indicated where the the purchase was from. Based on my own personal budgeting, I have nine budget categories: dining, professional development, groceries, house, transportation, fun, recurring services, pets, and miscellany. As the user would, I manually labeled these 100 or so transactions. These are stored in <a href='https://github.com/gregorygsimon/credit-card-aws/blob/master/label_dictionary.csv'> <code> label_dictionary.csv </code> </a>
+
+        <p> To collect text needed to train a model, I use a custom <a href='https://cse.google.com/'> Google Search Engine </a> which I invoke using python. This is found in <a href='https://github.com/gregorygsimon/credit-card-aws/blob/master/initial.py'> <code> initial.py </code> </a>. </p>
+
+         <p> Armed with approximately 650 search result texts from the business names along with the user specified category, we can now create a classification model. Among many competitors, the best performance  was a model using TF-IDF embedding followed by a Support Vector classifier (via SGDClassifier with loss 'hinge'). This achieved about 75% accuracy on both training and validation sets. The exploratory modeling is performed in <a href='https://github.com/gregorygsimon/credit-card-aws/blob/master/modeling.ipynb'> <code> modeling.ipynb </code></a>.</p>
+
+           <h4> Conclusion </h4>
+<p>
+           At about 75% accurate already, this can already help the user not need to manually enter every label. Or only correct a quarter of the labels guessed by the algorithm. If the user uses the app for longer than a few months, then the accuracy would improve with more training data.
+
+           Another possible improvement is by using more sophisticated webscraping methods. Rather than just take the preview test of the Google Search of the store/business where the transaction occured, one could look scrape the websites themselves to get significantly longer text phrases than about 100 words. This would take significant time involvement however as websites are less receptive to webscraping in the year 2020 compared to years past. In an enterprise solution, prominent businesses could have cached text descriptions to avoid this issue entirely.</p>
+
+</section>
+
+	      </div>
+	    </section>
+
+
+	    <!-- Scripts -->
+	    <script src="assets/js/jquery.min.js"></script>
+	    <script src="assets/js/skel.min.js"></script>
+	    <script src="assets/js/util.js"></script>
+	    <script src="assets/js/main.js"></script>
+	    <script src="assets/js/prism.js"></script>
+
+
+	  </body>
+	</html>
