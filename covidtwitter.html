@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<!--
+Spatial by TEMPLATED
+templated.co @templatedco
+Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+<head>
+  <title> Covid-19 Twitter sentiment, gathering and visualizing </title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet"
+	href="assets/css/prism.css">
+
+  <style>
+   div {
+       max-width:750px;
+   }
+p {
+  max-width:750px;
+}
+pre {
+  max-width:730px;
+  }
+code {
+  max-width:700px;
+ }
+</style>
+    
+</head>
+<body>
+  
+  <!-- Header -->
+  <header id="header">
+
+    <h1><strong><a href="index.html">Gregory G. Simon </a></strong></h1>
+    <nav id="nav">
+      <ul>
+	<li><a href="index.html">Home</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <a href="#menu" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+  
+  <!-- Main -->
+  <section id="main" class="wrapper">
+    <div class="container">
+        <header class="major special">
+	          <h2>  Covid-19 Twitter sentiment, gathering and visualizing </h2>
+	<p>  Python (pandas,matplotlib), bash, SQL, NLP</p>
+      </header>
+      
+      <section>
+        <h4> Business use-case </h4>
+	<p> Covid-19 has disrupted every industry -  understanding the nature of this disruption can prove extremely valuable. The emotional sentiment (positive or negative) of  workers can shed light on health of a company, sentiment of shoppers can shed light on sales forecasts for retail/entertainment/food sectors, sentiment of voters can help forecast local or federal elections. Twitter gives us a massive freely accessible data source of text for which sentiment can be extracted. </p>
+
+  <h4> Results </h4>
+
+  <p> The code and data used in this project are available in <a href='https://github.com/gregorygsimon/covid-tweets'> this Github repo</a>. The figures and calculations were produced in the notebook <a href='https://github.com/gregorygsimon/covid-tweets/blob/master/EDA.ipynb'> <code> EDA.ipynb </code> </a>.</p>
+
+  <p> For several months, once per minute I collected 100 of the most recent tweets using the search terms 'covid19'
+      and 'coronavirus'. I processed only the tweets where the user had specified a text location in their profile, and a web-based geocoder (Nominatum) was able to parse their location to be somewhere in the United States. This resulted in several hundred thousand tweets per month. This was on a local machine running Ubuntu Server. </p>
+
+  <div style="margin: 0 auto; width:1200px;">
+	    <img
+	        src="https://raw.githubusercontent.com/gregorygsimon/covid-tweets/master/tweets_by_state.png" width="700"; alt="";
+	    />
+	</div>
+
+  <p> By only processing tweets with user-entered text locations, we greatly reduced the number of tweets from bots. Most (95%) tweets are from human sources.  </p>
+
+  <div style="margin: auto 100px auto 100px; width:1200px;">
+	    <img
+	        src="https://raw.githubusercontent.com/gregorygsimon/covid-tweets/master/tweets_by_source.png" width="500"; alt="";
+	    />
+	</div>
+
+  <p> For the initial sentiment, we used <a href="https://github.com/flairNLP/flair"> flair</a> - a `contextual' character-based LSTM model pretrained on English IMDB reviews as well as <a href="https://github.com/cjhutto/vaderSentiment"> vaderSentiment</a> - a simpler " lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media" (specifically Twitter).</p>
+
+  <div style="margin: auto 0 auto 0; width:1200px;">
+	    <img
+	        src="https://raw.githubusercontent.com/gregorygsimon/covid-tweets/master/top5states.png" width="800"; alt="";
+	    />
+	</div>
+  
+  <p> Pictured above is the z-score of the two sentiments, shown for the top 5 states as ranked by total number of tweets, as well as the three day rolling average sentiment of all states. The flair sentiment and the vader sentiment have a Spearman rank correlation of 0.341, indicating these two methods are correlated. The confusion matrix below shows they agree on overall sentiment on about 64% of the time.  </p>
+
+  <div style="margin: auto 0 auto 100px; width:500px"> <table border="1" class="dataframe">
+      <thead>
+          <tr style="text-align: right;">
+              <th></th>
+              <th>flair positive</th>
+              <th>flair negative</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <th>vader positive</th>
+              <td>0.483029</td>
+              <td>0.157746</td>
+          </tr>
+          <tr>
+              <th>vader negative</th>
+              <td>0.201783</td>
+              <td>0.157443</td>
+          </tr>
+      </tbody>
+  </table> </div>
+
+  <p> So we are getting some significant signal here, but it is weak. This will be improved greatly by using a custom trained model rather than the pretrained models on other corpora/other use cases. </p>
+
+  <p> Using the results of the 2016 election, we can group states into either 'red', 'blue', or 'swing' based on if the margin for victory for the Democratic/Repulican presidential candidate was more than 5.5%. Under 5.5% in either direction was classified as 'swing' (this was a natural cut off point). This gave us 24 red states (29.1% of tweets), 14 blue states (41.1% of tweets), and 13 swing states (29.8% of tweets).
+
+      <div style="margin: auto 0 auto 0; width:1200px;">
+	        <img
+	            src="https://raw.githubusercontent.com/gregorygsimon/covid-tweets/master/by_politics.png" width="800"; alt="";
+	        />
+	    </div>
+
+      <p> Some similar conclusions can be seen via both sentiment analyzers: (1) a red state boost around May 9; (2) local peak of sentiment around July 7th; (3) general downward trend mid-late July. These further support the hypothesis that even these pretrained models can extract some helpful information from the large corpus of tweets. </p>
+      
+      <h4> Next steps </h4>
+
+      <p> Training a model on this corpus of tweets will surely produce a more relevant embedding for our use case. Possible target variables for this training: stock prices, sales figures, polling results. These can all be grouped by state or by metro region.
+      </p>
+
+      <h4> References </h4>
+
+      <p><div class="csl-bib-body" style="margin-left: 2em; text-indent:-2em;">
+          <div class="csl-entry">Akbik, Alan, Tanja Bergmann, Duncan Blythe, Kashif Rasul, Stefan Schweter, and Roland Vollgraf. “FLAIR: An Easy-to-Use Framework for State-of-the-Art NLP.” In <i>Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics (Demonstrations)</i>, 54–59. Minneapolis, Minnesota: Association for Computational Linguistics, 2019. <a href="https://doi.org/10.18653/v1/N19-4010">https://doi.org/10.18653/v1/N19-4010</a>.</div>
+          <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_id=info%3Adoi%2F10.18653%2Fv1%2FN19-4010&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=proceeding&amp;rft.atitle=FLAIR%3A%20An%20Easy-to-Use%20Framework%20for%20State-of-the-Art%20NLP&amp;rft.btitle=Proceedings%20of%20the%202019%20Conference%20of%20the%20North%20American%20Chapter%20of%20the%20Association%20for%20Computational%20Linguistics%20(Demonstrations)&amp;rft.place=Minneapolis%2C%20Minnesota&amp;rft.publisher=Association%20for%20Computational%20Linguistics&amp;rft.aufirst=Alan&amp;rft.aulast=Akbik&amp;rft.au=Alan%20Akbik&amp;rft.au=Tanja%20Bergmann&amp;rft.au=Duncan%20Blythe&amp;rft.au=Kashif%20Rasul&amp;rft.au=Stefan%20Schweter&amp;rft.au=Roland%20Vollgraf&amp;rft.date=2019-06&amp;rft.pages=54%E2%80%9359&amp;rft.spage=54&amp;rft.epage=59"></span>
+          <div class="csl-entry">Akbik, Alan, Duncan Blythe, and Roland Vollgraf. “Contextual String Embeddings for Sequence Labeling.” In <i>Proceedings of the 27th International Conference on Computational Linguistics</i>, 1638–1649. Santa Fe, New Mexico, USA: Association for Computational Linguistics, 2018. <a href="https://www.aclweb.org/anthology/C18-1139">https://www.aclweb.org/anthology/C18-1139</a>.</div>
+          <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=proceeding&amp;rft.atitle=Contextual%20String%20Embeddings%20for%20Sequence%20Labeling&amp;rft.btitle=Proceedings%20of%20the%2027th%20International%20Conference%20on%20Computational%20Linguistics&amp;rft.place=Santa%20Fe%2C%20New%20Mexico%2C%20USA&amp;rft.publisher=Association%20for%20Computational%20Linguistics&amp;rft.aufirst=Alan&amp;rft.aulast=Akbik&amp;rft.au=Alan%20Akbik&amp;rft.au=Duncan%20Blythe&amp;rft.au=Roland%20Vollgraf&amp;rft.date=2018-08&amp;rft.pages=1638%E2%80%931649&amp;rft.spage=1638&amp;rft.epage=1649"></span>
+          <div class="csl-entry">Hutto, Clayton J., and Eric Gilbert. “VADER: A Parsimonious Rule-Based Model for Sentiment Analysis of Social Media Text.” In <i>ICWSM</i>, 2014.</div>
+          <span class="Z3988" title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rfr_id=info%3Asid%2Fzotero.org%3A2&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&amp;rft.genre=proceeding&amp;rft.atitle=VADER%3A%20A%20Parsimonious%20Rule-Based%20Model%20for%20Sentiment%20Analysis%20of%20Social%20Media%20Text&amp;rft.btitle=ICWSM&amp;rft.aufirst=Clayton%20J.&amp;rft.aulast=Hutto&amp;rft.au=Clayton%20J.%20Hutto&amp;rft.au=Eric%20Gilbert&amp;rft.date=2014"></span>
+      </div> </p>
+
+</section>
+
+	      </div>
+	    </section>
+
+
+	    <!-- Scripts -->
+	    <script src="assets/js/jquery.min.js"></script>
+	    <script src="assets/js/skel.min.js"></script>
+	    <script src="assets/js/util.js"></script>
+	    <script src="assets/js/main.js"></script>
+	    <script src="assets/js/prism.js"></script>
+
+
+	  </body>
+	</html>
