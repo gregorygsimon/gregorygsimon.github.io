@@ -27,7 +27,8 @@ def get_token(password):
 
 def get_me_sid(email,token):
     """get MindEdge Student ID"""
-    r = requests.post(base_url+'students',json={'token':token,'dId':55,'emailAddress':email})
+    r = requests.post(base_url+'students',
+                      json={'token':token,'dId':55,'emailAddress':email})
     return r.json()[0].get('sId')
 
 def get_completion_perc(sid,token):
@@ -52,15 +53,19 @@ def get_completion_perc(sid,token):
     # all_pages gives the total possible pages indexed by module
     #   counted manually in Sep 2020
     all_pages = pd.Series([23, 22, 30, 17,  8, 12, 16],index=idx)
-    completion=100*pd.Series([int(p[0]) for p in pages]).value_counts().reindex(idx,fill_value=0)/all_pages
+    completion=100*pd.Series([int(p[0]) for p in pages])\
+                     .value_counts().reindex(idx,fill_value=0)/all_pages
     return completion
 
 
 
 def get_quiz_results(sid,token):
-    r4 = requests.post(base_url+'studentTestData',json={'token':token,'dId':55,'cId':612,'sId':sid})
-    data_quiz = \
-        [(*test['title'].split('Module ')[1].split('Problem Set '),
+    r4 = requests.post(base_url+'studentTestData',
+                       json={'token':token,'dId':55,'cId':612,'sId':sid})
+    # parsing the text names of the quizzes to give:
+    #    the ch number, quiz number, percent, date, and # of questions answered
+    data_quiz = [
+        (*test['title'].split('Module ')[1].split('Problem Set '),
           result['final_score'],
           result['dateCompleted'],
           result['totalQuestions']
@@ -68,9 +73,14 @@ def get_quiz_results(sid,token):
          for test in r4.json() for result in test['resultData']
         ]
 
-    quiz_df = pd.DataFrame(data_quiz,columns=['Chapter','Problem Set','Percent','Date','Completed'])
+    quiz_df = pd.DataFrame(
+        data_quiz,
+        columns=['Chapter','Problem Set','Percent','Date','Completed']
+    )
+
     quiz_df['Percent'] = pd.to_numeric(quiz_df['Percent'])
-    quiz_df['days ago'] = pd.to_datetime(quiz_df['Date']).apply(lambda x: (datetime.datetime.now()-x).days)
+    quiz_df['days ago'] = pd.to_datetime(quiz_df['Date'])\
+                            .apply(lambda x: (datetime.datetime.now()-x).days)
     quiz_df['# correct'] = quiz_df['Percent']/100 * quiz_df['Completed']
     quiz_df['y_value'] = pd.to_numeric(quiz_df['Chapter'])
     return quiz_df
@@ -103,8 +113,12 @@ def mindedge_dashboard(sid,token,filename='dashboard.png'):
     quiz_df = get_quiz_results(sid,token)
 
     # reindex studytimes to ensure that at least one month is visible
+    # so the min date is the lesser of 1 mo ago and the minimum date in the dataset
     month_ago = (datetime.datetime.now()+datetime.timedelta(days=-30)).date()
-    all_dates = pd.date_range( min(month_ago, studytimes.index.min()), datetime.datetime.now())
+    all_dates = pd.date_range(
+        min(month_ago, studytimes.index.min()), 
+        datetime.datetime.now()
+    )
     studytimes_reidx = studytimes.reindex(all_dates,fill_value=0)
 
     # WGU colors taken from https://www.wgu.edu/about/brand.html
@@ -173,28 +187,5 @@ def mindedge_dashboard(sid,token,filename='dashboard.png'):
     ax.set_title('Hours engaged in Learning Resource');
 
     plt.savefig(filename,dpi=300,bbox_inches='tight')
-
-def med(student):
-    """Mindedge Dashboard shortcut"""
-
-    # input can be student's email or student-dict
-    email = student
-    if type(email)!=str:
-        email = student.get('Username__c')
-    if '@' not in email:
-        email = email+'@wgu.edu'
-
-    global token
-    try:
-        sid = get_me_sid(email,token)
-    except Exception as e:
-        # token likely old or not yet active
-        print(e, 'updating token, then retrying...')
-        global pw
-        token = get_token(pw)
-        sid = get_me_sid(email,token)
-
-    print('sid',sid)
-    mindedge_dashboard(sid,token,filename='dashboard.png')
 
     #webbrowser.open('dashboard.png')
