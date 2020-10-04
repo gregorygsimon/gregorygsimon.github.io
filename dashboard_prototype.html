@@ -56,12 +56,13 @@ code {
         <h4> Business use-case </h4>
 	      <p> At WGU, students work asynchronously, proceeding through each course at their own pace.
             Faculty outreach to struggling students to help them along their way.
-            An outside vendor (MindEdge.com) hosts our online textbook, and accessing this site to get all relevant student data takes 32 mouse-clicks and about 6 minutes.
-            If a faculty member tries to engage with 10-15 students individually in a work day, it is not currently feasible to check their progress.
+            An outside vendor (MindEdge.com) hosts our online textbook, and accessing this site to get all relevant student data takes 22 mouse-clicks and about 4 minutes
+            (having to click into each quiz result in each Chapter is a big part of this).
+            If a faculty member tries to engage with 20-25 students individually in a work day, it is not currently feasible to check on their progress.
         </p>
 
         <p> By accessing MindEdge's API, this dashboard reduces the number of clicks to 1 and reduces the time down to about 20 seconds.
-            This empowers the faculty member with the ability to see their student's progress at a glance in all Modules/Chapters.
+            This empowers the faculty member with the ability to see their student's progress at a glance in all Chapters.
             So the faculty members can instantly differentiate students who need support vs. who don't, as well as seeing where the student is in the course.
         </p>
 
@@ -121,9 +122,9 @@ code {
             <li> The colormap <code> cmap=plt.cm.viridis_r </code> is excellent to differentiate hot/current yellow quiz results from colder/old purple quiz results. </li>
             <li> We reduce opacity and add some small horizontal random jitter to the quiz result circles<br> via <code> quiz_df['Percent'].apply(lambda x: x+np.random.normal(0,0.1)) </code> <br> Otherwise multiple identical scores would be invisible as they would overlap completely. </li>
         </ul>
-         
 
-        <script src="http://gist-it.appspot.com/https://github.com/gregorygsimon/gregorygsimon.github.io/blob/master/student_dashboard_prototype.py"></script>
+
+        <script src="https://gist-it.appspot.com/https://github.com/gregorygsimon/gregorygsimon.github.io/blob/master/student_dashboard_prototype.py"></script>
 
         
 
