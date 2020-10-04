@@ -73,7 +73,7 @@ code {
 	          />
 	      </div>
 
-        <p> The dashboard above tells an immediate story: this student needs help!
+        <p> The dashboard above (created Sep 21) tells an immediate story: this student needs help!
             <ul>
                 <li> The <i> Completion </i> graph shows they are through everything but the end of Ch.7. </li>
                 <li> The <i>Quiz Results</i> show strong scores through Ch.5 but all over a month ago. We want students to complete each chapter in under 2 weeks. </li>
@@ -84,20 +84,44 @@ code {
             This student needs outreach, and an invitation to come in to office hours!
         </p>
 
-        <p> Compare that with the student below, who we can instantly see is making great progress and doesn't need require any intervention:</p>
+        <p> Compare that with the student below, who we can instantly see is just starting out but has made great progress (about one Chapter per week) with solid quiz scores.
+            This student does not require any intervention:</p>
 
         <div style="margin: 0 auto;width:1200px;">
 	          <img
-	              src="images/dashboard_ex2.png" width="750" alt=""
+	              src="images/dashboard_ex3.png" width="750" alt=""
 	          />
-	      </div>
+	      </div> <br>
 
+        <h4> Conclusion </h4>
 
-        <p> The code for this project is available as <a href="https://github.com/gregorygsimon/gregorygsimon.github.io/blob/master/student_dashboard_prototype.py"> student_dashboard_prototype.py </a>.
-            Some elements were removed from this prototype (like student name, email, ID number, student notes, etc.) to protect students privacy and maintain FERPA compliance.
+        <p>
+            This dashboard prototype has the potential to revolutionize how WGU faculty monitor their students' asychronous progress.
+            It would provide benefit to all stakeholders.
+        <ul>
+            <li> <i>On-time Course Completion</i> is the KPI with greatest impetus for improvement. This dashboard can empower faculty to identify and intervene with the students who are at risk of falling behind.</li>
+                <li> Students would receive more relevant and personalized outreach from faculty.</li>
+                <li> Faculty would save time clicking through a slow website interface, and save time by identifying students who do not need any intervention.</li>
+        </ul>
         </p>
+        
 
         <h4> Code </h4>
+
+        <p> The code for this project is available as
+            <a href="https://github.com/gregorygsimon/gregorygsimon.github.io/blob/master/student_dashboard_prototype.py"> student_dashboard_prototype.py </a>,
+            which is available below.
+            Some elements were removed from this prototype (like student name, email, ID number, student notes, etc.) to protect students privacy and maintain FERPA compliance.
+            I will highlight a few implementation decisions.
+        </p>
+
+        <ul>
+            <li> The <code> sharey='row' </code> option in <code>plt.subplots()</code> is extremely helpful to visually align the 7 chapters. </li>
+            <li> Similary <code> ax.invert_yaxis() </code> makes the Chapters read downwards from 1 to 7. </li>
+            <li> The colormap <code> cmap=plt.cm.viridis_r </code> is excellent to differentiate hot/current yellow quiz results from colder/old purple quiz results. </li>
+            <li> We reduce opacity and add some small horizontal random jitter to the quiz result circles<br> via <code> quiz_df['Percent'].apply(lambda x: x+np.random.normal(0,0.1)) </code> <br> Otherwise multiple identical scores would be invisible as they would overlap completely. </li>
+        </ul>
+         
 
         <script src="http://gist-it.appspot.com/https://github.com/gregorygsimon/gregorygsimon.github.io/blob/master/student_dashboard_prototype.py"></script>
 

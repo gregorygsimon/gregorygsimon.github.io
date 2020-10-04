@@ -17,7 +17,8 @@ base_url = 'https://wguapps.mindedgeonline.com/services/api/'
 domain_id = 55
 
 def get_token(password):
-    r = requests.post(base_url+'auth',json = {'username':un,'password':password})
+    r = requests.post(base_url+'auth',
+                      json = {'username':un,'password':password})
     try:
         return r.json()[0]['token']
     except Exception as e:
@@ -63,7 +64,7 @@ def get_quiz_results(sid,token):
     r4 = requests.post(base_url+'studentTestData',
                        json={'token':token,'dId':55,'cId':612,'sId':sid})
     # parsing the text names of the quizzes to give:
-    #    the ch number, quiz number, percent, date, and # of questions answered
+    #    the ch number, quiz number, percent, date, and # of Q's answered
     data_quiz = [
         (*test['title'].split('Module ')[1].split('Problem Set '),
           result['final_score'],
@@ -113,7 +114,7 @@ def mindedge_dashboard(sid,token,filename='dashboard.png'):
     quiz_df = get_quiz_results(sid,token)
 
     # reindex studytimes to ensure that at least one month is visible
-    # so the min date is the lesser of 1 mo ago and the minimum date in the dataset
+    # so min of date_rage is the lesser of 1 mo ago and the min date
     month_ago = (datetime.datetime.now()+datetime.timedelta(days=-30)).date()
     all_dates = pd.date_range(
         min(month_ago, studytimes.index.min()), 
@@ -142,7 +143,8 @@ def mindedge_dashboard(sid,token,filename='dashboard.png'):
     for i in range(7):
         if completion.iloc[i]==100:
             colors[i]=blue
-    plt.barh(completion.index,completion.values,height=1,color=colors,edgecolor='black')
+    plt.barh(completion.index,completion.values,
+             height=1,color=colors,edgecolor='black')
     plt.ylim(0.5,7.5)
     plt.xlim(0,100)
     ax.invert_yaxis()
@@ -188,4 +190,4 @@ def mindedge_dashboard(sid,token,filename='dashboard.png'):
 
     plt.savefig(filename,dpi=300,bbox_inches='tight')
 
-    #webbrowser.open('dashboard.png')
+    #webbrowser.open(filename)
