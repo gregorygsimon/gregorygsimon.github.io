@@ -1,0 +1,12 @@
+Hello!
+
+I think I might be a great fit for your team at Reddit. My PhD from a top 10 school in mathematics makes me able to handle quantitative problems at an elite level. But at the same time, I place a ton of emphasis on being the best software engineer I can be - especially these days within cloud services such as AWS or Azure.
+
+I have significant experience developing recommendation algorithms including for direct applications - such as a ChatBot Sales Assistant that recommends vehicles in inventory.  But also more indirectly - such as a recommendation system within an LLM-backed retrieval augmented generation (RAG) Q&A system, or as part of a utility-based discrete choice model designed for optimal vehicle inventory management.
+
+I strive to be elite both technically but also as a leader. Great things require collaboration. In my experience leading teams with bright people, bringing positivity and energy has a multiplicative effect. I am extremely proud of my work in helping develop junior scientists.
+
+I would love to chat with you about the position with Reddit. Thank you so much for your time and consideration.
+
+Best regards,
+Greg Simon 
